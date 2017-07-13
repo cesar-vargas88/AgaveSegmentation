@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="AgaveCounting" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/AgaveCounting" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="../../OpenCV/include" />
+				</Compiler>
+				<Linker>
+					<Add library="../../OpenCV/build/lib/libopencv_videostab.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_superres.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_stitching.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_java320.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudastereo.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudaoptflow.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudaobjdetect.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudalegacy.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudafeatures2d.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_calib3d.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_features2d.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_objdetect.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudacodec.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_shape.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_photo.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudawarping.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudaimgproc.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudafilters.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudabgsegm.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_viz.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_video.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_ml.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_flann.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudaarithm.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_highgui.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_videoio.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_imgcodecs.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_imgproc.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_core.so" />
+					<Add library="../../OpenCV/build/lib/libopencv_cudev.so" />
+					<Add directory="../../OpenCV/build/lib" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/AgaveCounting" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-s" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="`opencv-config --cxxflags`" />
+		</Compiler>
+		<Linker>
+			<Add option="`opencv-config --ldstaticflags`" />
+		</Linker>
+		<Unit filename="Images/Agave.jpg" />
+		<Unit filename="Images/Optimized-Agave1.1.png" />
+		<Unit filename="Images/Optimized-Agave1.jpg" />
+		<Unit filename="Images/Optimized-Agave2.JPG" />
+		<Unit filename="Images/Optimized-Agave3.JPG" />
+		<Unit filename="Images/lena.jpg" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<lib_finder disable_auto="1" />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

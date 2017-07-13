@@ -1,0 +1,19 @@
+# depslib dependency file v1.0
+1499885040 source:/home/cesar/Agave Detection/AgaveCounting/main.cpp
+	<opencv2/core/core.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	<opencv2/highgui/highgui.hpp>
+	<iostream>
+	<vector>
+	<opencv2/imgproc/imgproc.hpp>
+	<iostream>
+
+1499907015 source:/home/cesar/AgaveDetection/AgaveCounting/main.cpp
+	<opencv2/core/core.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	<opencv2/highgui/highgui.hpp>
+	<iostream>
+	<list>
+	<opencv2/imgproc/imgproc.hpp>
+	<iostream>
+
