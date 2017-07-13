@@ -9,12 +9,17 @@
 using namespace std;
 using namespace cv;
 
-Mat SegmentAgave(Mat imagen, list <int> lsegmentPixels);
-Mat GroupAgave(Mat imagen, list <int> lsegmentPixels, list <list <int> > lgroupPixels);
+Mat SegmentAgave(Mat imagen, list <int> &lsegmentPixels);
+Mat GroupAgave(Mat imagen, list <int> &lsegmentPixels, list <list <int> > &lgroupPixels);
+
+
+RNG rng(12345);
+
+
 
 int main(int argc, char *argv[])
 {
-    Mat imgIn   = imread("/home/cesar/AgaveDetection/Images/Agave1.jpg", CV_LOAD_IMAGE_COLOR);
+    Mat imgIn   = imread("/home/cesar/AgaveDetection/Images/Agave2.jpg", CV_LOAD_IMAGE_COLOR);
 
     list <int>          lSegmentPixels;
     list <list <int> >  lGroupPixels;
@@ -34,14 +39,12 @@ int main(int argc, char *argv[])
     namedWindow("Group Agave", CV_WINDOW_AUTOSIZE );
     imshow("Group Agave", GroupAgave(imgIn, lSegmentPixels, lGroupPixels));
 
-    cout << "List Size: " << lSegmentPixels.size() << endl;
-
     waitKey(0);
 
     return 0;
 }
 
-Mat SegmentAgave(Mat imgIn, list <int> lsegmentPixels)
+Mat SegmentAgave(Mat imgIn, list <int> &lsegmentPixels)
 {
     Mat imgOut = imgIn.clone();
     Vec3b   vColor;
@@ -64,7 +67,7 @@ Mat SegmentAgave(Mat imgIn, list <int> lsegmentPixels)
                 cout << "Num Pixel: " << lsegmentPixels.size()
                      << "\tSave Pixel: " << lsegmentPixels.front()
                      << "\tRow: " << lsegmentPixels.front()/imgOut.cols
-                     << "\tCol: " << (lsegmentPixels.front()%imgOut.cols) << endl;
+                     << "\tCol: " << lsegmentPixels.front()%imgOut.cols << endl;
             }
             else
             {
@@ -83,24 +86,133 @@ Mat SegmentAgave(Mat imgIn, list <int> lsegmentPixels)
     return imgOut;
 }
 
-Mat GroupAgave(Mat imagen, list <int> lsegmentPixels, list <list <int> > lgroupPixels)
+
+
+Mat GroupAgave(Mat imagen, list <int> &lsegmentPixels, list <list <int> > &lgroupPixels)
+{
+   /* Mat imgOut = imagen.clone();
+    Vec3b   vColor;
+
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+
+    findContours( imagen, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+    Mat drawing = Mat::zeros( imagen.size(), CV_8UC3 );
+
+    for( size_t i = 0; i< contours.size(); i++ )
+    {
+       Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+       drawContours( drawing, contours, (int)i, color, 2, 8, hierarchy, 0, Point() );
+    }
+*/
+    return imagen;
+}
+
+/*
+
+Mat GroupAgave(Mat imagen, list <int> &lsegmentPixels, list <list <int> > &lgroupPixels)
 {
     Mat imgOut = imagen.clone();
     //Vec3b   vColor;
 
-    int nPixelRow = 0;
-    int nPixelCol = 0;
+    int nPixelRow           = 0;
+    int nPixelCol           = 0;
+    int nActualPixel        = 0;
+    int nNeighborPixel      = 0;
+    int nListPixelPosition  = 1;
+    bool bMorePixelInGroup  = true;
+    list <int> lPixelsInGroup;
+    list <int> lsegmentPixelsCopy;
 
-
-    cout << "List Size: " << lsegmentPixels.size() << endl;
-    /*
-    for(int z=1 ; z<= lsegmentPixels.size() ; z++)
+    while(lsegmentPixels.size())
     {
-        cout << lsegmentPixels.begin() << endl;
-        lsegmentPixels.pop_back();
+        cout << "Position: " << lsegmentPixels.back() << endl;
 
+        lPixelsInGroup.push_front(lsegmentPixels.back());
 
-    }*/
+        bMorePixelInGroup  = true;
+
+        while(bMorePixelInGroup)
+        {
+            nActualPixel    = lsegmentPixels.back();
+            nPixelRow       = lsegmentPixels.back() / imgOut.cols;
+            nPixelCol       = lsegmentPixels.back() % imgOut.cols;
+
+            cout << "nActualPixel: " << nActualPixel << endl;
+            cout << "nPixelRow: " << nPixelRow << endl;
+            cout << "nPixelCol: " << nPixelCol << endl;
+            cout << "x-1: " << ( nPixelRow * imgOut.cols ) + nPixelCol-1 << endl;
+            cout << "x+1: " << ( nPixelRow * imgOut.cols ) + nPixelCol+1 << endl;
+            cout << "y-1: " << ( (nPixelRow-1) * imgOut.cols ) + nPixelCol << endl;
+            cout << "y+1: " << ( (nPixelRow+1) * imgOut.cols ) + nPixelCol << endl;
+
+            // Add nActualPixel to the lPixelsInGroup list
+            lPixelsInGroup.push_back(nActualPixel);
+
+            // Remove last element of lsegmentPixels list
+            lsegmentPixels.pop_back();
+
+            if(nPixelCol-1 >= 0)
+            {
+                // Assign pixel number to nNeighborPixel
+                nNeighborPixel = ( nPixelRow * imgOut.cols ) + nPixelCol-1;
+
+                cout << "nPixelCol-1 >= 0 " << nNeighborPixel << endl;
+
+                // Make a copy of lsegmentPixels list
+                lsegmentPixelsCopy  = lsegmentPixels;
+                nListPixelPosition  = 1;
+
+                cout << "lPixelsInGroupCopy Size: " << lPixelsInGroupCopy.Size << endl;
+
+                // Verify if nNeighborPixel is in lsegmentPixelsCopy
+                while(lsegmentPixelsCopy.size())
+                {
+                    if(lsegmentPixelsCopy.back() == nNeighborPixel)
+                    {
+                        // Add nNeighborPixel to the lPixelsInGroup list
+                        lPixelsInGroup.push_back(nNeighborPixel);
+
+                        // Erase the element of nNeighborPixel from the lsegmentPixels list
+                        lsegmentPixels.erase(nListPixelPosition);
+
+                        // Clear lsegmentPixelsCopy list
+                        lsegmentPixelsCopy.clear();
+                    }
+                    else
+                    {
+                        // Remocoutve last element of copy of lsegmentPixels list
+                        lsegmentPixelsCopy.pop_back();
+                        nListPixelPosition++;
+                    }
+
+                    // Remove last element of copy of lsegmentPixels list
+                    lsegmentPixels.pop_back();
+                }
+            }
+
+            if(nPixelCol+1 < imgOut.cols)
+            {
+                nNeighborPixel = ( nPixelRow * imgOut.cols ) + nPixelCol+1;
+                cout << "nPixelCol+1 < imgOut.cols " << nNeighborPixel << endl;
+            }
+            if(nPixelRow-1 >= 0)
+            {
+                nNeighborPixel = ( (nPixelRow-1) * imgOut.cols ) + nPixelCol;
+                cout << "nPixelRow-1 >= 0 " << nNeighborPixel << endl;
+            }
+            if(nPixelRow+1 < imgOut.rows)
+            {
+                nNeighborPixel = ( (nPixelRow+1) * imgOut.cols ) + nPixelCol;
+                cout << "nPixelRow+1 < imgOut.rows " << nNeighborPixel << endl;
+            }
+        }
+
+        //lgroupPixels.push_front(list <int> {10});
+
+    }
 
     return imgOut;
 }
+*/
