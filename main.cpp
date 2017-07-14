@@ -10,13 +10,21 @@ using namespace std;
 using namespace cv;
 
 Mat SegmentAgave(Mat imagen);
+Mat LineDetection(Mat imagen);
+Mat CircleDetection(Mat imagen);
 Mat GroupAgave(Mat imagen);
 
 int main(int argc, char *argv[])
 {
     // Open the image
     Mat imgIn   = imread("/home/cesar/AgaveDetection/Images/CRT3_Arenal_V2 100%.jpg", CV_LOAD_IMAGE_COLOR);
-    Mat imgOut = imgIn.clone();
+
+    Mat imgLuv;
+    Mat imgGray;
+    Mat imgCrCb;
+    Mat imgHSV;
+    Mat imgHLS;
+    Mat imgLab;
 
     list <int>          lSegmentPixels;
     list <list <int> >  lGroupPixels;
@@ -28,32 +36,27 @@ int main(int argc, char *argv[])
        return -1;
     }
 
-    //GaussianBlur( imgIn, imgOut, Size( 9, 9 ), 0, 0 );
+    cvtColor(imgIn  ,    imgLuv  ,    CV_BGR2Luv);
+    cvtColor(imgIn  ,    imgCrCb ,    CV_BGR2GRAY);
+    cvtColor(imgIn  ,    imgCrCb ,    CV_BGR2YCrCb);
+    cvtColor(imgIn  ,    imgHSV  ,    CV_BGR2HSV);
+    cvtColor(imgIn  ,    imgHLS  ,    CV_BGR2HLS);
+    cvtColor(imgIn  ,    imgLab  ,    CV_BGR2Lab);
 
-    // Reduce noise with a kernel 3x3
-    //blur( src_gray, detected_edges, Size(3,3) );
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/ColorLuv.jpg"    , imgLuv);
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/ColorCrCb.jpg"   , imgCrCb);
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/ColorHSV.jpg"    , imgHSV);
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/ColorHLS.jpg"    , imgHLS);
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/ColorLab.jpg"    , imgLab);
 
-    // Canny detector
-    //Canny( detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size );
-
-    // Using Canny's output as a mask, we display our result
-    //dst = Scalar::all(0);
-
-
-
-    Mat gray, edge, draw;
-
-    //cvtColor(imgIn, gray, CV_BGR2GRAY);ŝŝ
-
-    //Canny(imgOut, edge, 50, 150, 3);
-    //edge.convertTo(draw, CV_8U);
-    // Create the image GaussianBlur
-
-    // Create the image AgeveSegmentation.jpg
     imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/AgaveSegmentation.jpg", SegmentAgave(imgIn));
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/AgaveSegmentation2.jpg", SegmentAgave(SegmentAgave(imgIn)));
+
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/LineDetection.jpg", LineDetection(SegmentAgave(imgIn)));
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/CircleDetection.jpg", CircleDetection(SegmentAgave(imgIn)));
 
     // Create the image AgeveGroup.jpg
-    //imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/AgaveGroup.jpg", GroupAgave(SegmentAgave(imgIn)));
+    imwrite("/home/cesar/AgaveDetection/Images/ProcessedImages/AgaveGroup.jpg", GroupAgave(SegmentAgave(imgIn)));
 
     waitKey(0);
 
@@ -72,11 +75,11 @@ Mat SegmentAgave(Mat imgIn)
             // Get pixel
             vColor = imgOut.at<Vec3b>(Point(x, y));
 
-            if(((vColor[0] - vColor[2]) > 25) && ((vColor[0] - vColor[1]) > 0))         // Difference between blue and red is mayor than 38
+            if(((vColor[0] - vColor[2]) > 20) && ((vColor[0] - vColor[1]) > 2))         // Difference between blue and red is mayor than 38
             {
-                vColor[0] = 255;
+                /*vColor[0] = 255;
                 vColor[1] = 255;
-                vColor[2] = 255;
+                vColor[2] = 255;*/
             }
             else
             {
@@ -92,11 +95,57 @@ Mat SegmentAgave(Mat imgIn)
 
     GaussianBlur( imgOut, imgIn, Size( 3, 3 ), 0, 0 );
 
-    cout << "Rows: " << imgOut.rows << "\tCols: " << imgOut.cols << "\tTotal Pixels: " <<  imgOut.rows * imgOut.cols << endl;
+    cout << "Segment Agave" << endl;
 
     return imgOut;
 }
 
+Mat LineDetection(Mat src)
+{
+    Mat dst, cdst;
+    Canny(src, dst, 50, 200, 3);
+    cvtColor(dst, cdst, CV_GRAY2BGR);
+
+    vector<Vec4i> lines;
+    HoughLinesP(dst, lines, 1, CV_PI/180, 50, 50, 10 );
+
+    for( size_t i = 0; i < lines.size(); i++ )
+    {
+        Vec4i l = lines[i];
+        line( cdst, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0,0,255), 3, CV_AA);
+    }
+
+    cout << "Line detection" << endl;
+
+    return cdst;
+}
+
+Mat CircleDetection(Mat src)
+{
+    Mat src_gray;
+
+    cvtColor( src, src_gray, COLOR_BGR2GRAY );
+    GaussianBlur( src_gray, src_gray, Size(9, 9), 2, 2 );
+
+    vector<Vec3f> circles;
+
+    HoughCircles( src_gray, circles, HOUGH_GRADIENT, 1, src_gray.rows/100, 200, 100, 0, 0 );
+
+    for( size_t i = 0; i < circles.size(); i++ )
+    {
+        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+        int radius = cvRound(circles[i][2]);
+
+        // circle center
+        circle( src, center, 3, Scalar(0,255,0), -1, 8, 0 );
+        // circle outline
+        circle( src, center, radius, Scalar(0,0,255), 3, 8, 0 );
+     }
+
+    cout << "Circle detection" << endl;
+
+    return src;
+}
 
 Mat GroupAgave(Mat imgIn)
 {
